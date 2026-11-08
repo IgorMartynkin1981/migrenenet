@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>МигрениНЕТ — онлайн-поликлиника</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#EEF2F6;--card:#fff;--ink:#1B2838;--mute:#5E6C7D;--line:#D9E0E8;--acc:#2A8C82;--acc-s:#DDF1EE;--warn:#B7791F;--warn-s:#FBF0D9;--red:#C93B4F;--red-s:#FBE3E6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -74,7 +75,7 @@ details p,details ul{margin:8px 0 0;color:var(--mute)}
 <body>
 <div class="app">
 <header>
-  <div><div class="logo">Мигрени<b>НЕТ</b></div><div class="sub">Онлайн-поликлиника</div></div>
+  <div><div class="logo">Мигрени<b>НЕТ</b></div><div class="sub" id="mode">Онлайн-поликлиника</div></div>
   <button class="btn light" id="theme" aria-label="Сменить тему" style="min-height:40px;padding:8px 14px">Тема</button>
 </header>
 
@@ -185,7 +186,7 @@ details p,details ul{margin:8px 0 0;color:var(--mute)}
 <!-- МОИ ИТОГИ -->
 <section id="me">
   <h1>Мои итоги</h1>
-  <p class="sub" style="margin:0 0 14px">Динамика за последние 30 дней. Данные в этом примере — демонстрационные.</p>
+  <p class="sub" id="meSub" style="margin:0 0 14px">Динамика за последние 30 дней.</p>
   <div class="card"><div class="stats" id="myStats"></div></div>
   <div class="card">
     <h2>Интенсивность боли по дням</h2>
@@ -300,7 +301,7 @@ function renderMe(){var arr=DATA.anna.slice(30),s=stats(arr),prev=stats(DATA.ann
 
 var cur='anna';
 var seg=$('#seg');Object.keys(PAT).forEach(function(k){var b=document.createElement('button');b.textContent=PAT[k].name.split(',')[0];b.dataset.k=k;b.onclick=function(){cur=k;renderDoc()};seg.appendChild(b)});
-function renderDoc(){$$('#seg button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===cur)});
+function renderDoc(){if(live){renderLiveDoc();return}$$('#seg button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===cur)});
  var a=DATA[cur],now=a.slice(30),prev=a.slice(0,30),s=stats(now),p=stats(prev),f=[],n=PAT[cur].name.split(',')[0];
  if(s.med>10)f.push(['r','<b>'+n+':</b> за последние 30 дней '+s.med+' дней приёма обезболивающих. Рекомендуется пересмотр терапии и беседа о лекарственно-индуцированной головной боли.']);
  if(s.avg-p.avg>=1.2)f.push(['r','<b>'+n+':</b> средняя интенсивность приступов выросла с '+p.avg.toFixed(1)+' до '+s.avg.toFixed(1)+' балла за месяц. Требуется оценка профилактической терапии.']);
@@ -316,13 +317,35 @@ function renderDoc(){$$('#seg button').forEach(function(b){b.setAttribute('aria-
 $$('input[name=pain]').forEach(function(r){r.onchange=function(){$('#painBlock').hidden=$('#p0').checked}});
 $$('input[name=med]').forEach(function(r){r.onchange=function(){$('#medBlock').hidden=!$('#m1').checked}});
 $('#vas').oninput=function(){$('#vasOut').textContent=this.value};
-$('#save').onclick=function(){var pain=$('#p1').checked,med=$('#m1').checked;
- var e={date:new Date(),pain:pain,vas:pain?+$('#vas').value:0,med:med,relief:med?$('#relief').value:null,fn:+(document.querySelector('input[name=fn]:checked')||{value:0}).value,sleep:+$('#sleep').value};
+$('#save').onclick=function(){var pain=$('#p1').checked,med=$('#m1').checked,fn=+(document.querySelector('input[name=fn]:checked')||{value:0}).value;
+ if(live){
+  var body={patientId:PID,pain:pain,vas:pain?+$('#vas').value:0,painHours:pain?+$('#hours').value:0,location:$('#loc').value,worseOnExertion:$('#e1').checked,symptoms:pick('#sym'),triggers:pick('#trg'),medTaken:med,drug:med?$('#drug').value:null,doseMg:med&&$('#dose').value?+$('#dose').value:null,medTime:med?$('#mtime').value:null,relief:med?RL[$('#relief').value]:null,functionLevel:fn,sleepHours:+$('#sleep').value,sleepQuality:$('#sq').value};
+  $('#save').disabled=true;
+  api('/api/diary',{method:'POST',body:JSON.stringify(body)}).then(loadMine).then(function(){toast('Дневник сохранён');show('me')}).catch(function(){toast('Не удалось сохранить. Проверьте соединение и повторите')}).then(function(){$('#save').disabled=false});
+  return}
+ var e={date:new Date(),pain:pain,vas:pain?+$('#vas').value:0,med:med,relief:med?$('#relief').value:null,fn:fn,sleep:+$('#sleep').value};
  DATA.anna[59]=e;try{localStorage.setItem('mn_today',JSON.stringify(e))}catch(_){}
  toast('Дневник сохранён');show('me')};
 $('#sosBtn').onclick=function(){show('info')};
 $('#msgBtn').onclick=function(){toast('Сообщение врачу: форма откроется в личном кабинете')};
 $('#chatBtn').onclick=function(){toast('Чат с дежурным врачом доступен 08:00–22:00')};
+
+// --- подключение к серверу (Spring Boot API). Нет сервера — работает демо-режим ---
+var live=false,Q=new URLSearchParams(location.search),API=(Q.get('api')||'').replace(/\/$/,''),TG=window.Telegram&&Telegram.WebApp,DK=Q.get('dk')||'',RL={full:'FULL',part:'PARTIAL',none:'NONE'};
+var PID=TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user?String(TG.initDataUnsafe.user.id):(Q.get('p')||'web-demo');
+if(TG){try{TG.ready();TG.expand()}catch(_){}}
+function esc(x){return String(x).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function pick(sel){return $$(sel+' input:checked').map(function(i){return $('label[for="'+i.id+'"]').textContent})}
+function api(path,opt){opt=opt||{};var h={'Content-Type':'application/json'};if(TG&&TG.initData)h['X-Telegram-Init-Data']=TG.initData;if(DK)h['X-Doctor-Key']=DK;opt.headers=h;return fetch(API+path,opt).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+function ymd(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function loadMine(){return api('/api/patients/'+encodeURIComponent(PID)+'/entries?days=60').then(function(list){var by={};list.forEach(function(e){by[e.entryDate]=e});var out=[],t=new Date();
+ for(var i=59;i>=0;i--){var d=new Date(t);d.setDate(d.getDate()-i);var e=by[ymd(d)];
+  out.push(e?{date:d,pain:e.pain,vas:e.vas,med:e.medTaken,relief:e.relief?e.relief.toLowerCase().replace('partial','part'):null,fn:e.functionLevel,sleep:e.sleepHours}:{date:d,pain:false,vas:0,med:false,relief:null,fn:0,sleep:0})}
+ DATA.anna=out;renderMe()})}
+function renderLiveDoc(){seg.hidden=true;$('#docStats').parentNode.hidden=true;
+ api('/api/doctor/alerts').then(function(a){var M={RED:'r',YELLOW:'w',GREEN:'g'};$('#flags').innerHTML=a.length?a.map(function(x){return '<div class="flag '+M[x.level]+'" role="'+(x.level==='RED'?'alert':'note')+'"><b>Пациент '+esc(x.patientId)+':</b> '+esc(x.message)+'</div>'}).join(''):'<div class="flag g">Отклонений нет.</div>'}).catch(function(){$('#flags').innerHTML='<div class="flag r" role="alert">Нет доступа. Откройте панель врача по ссылке с ключом доступа.</div>'})}
+var ctl=new AbortController(),to=setTimeout(function(){ctl.abort()},3000);
+fetch(API+'/api/health',{signal:ctl.signal}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(){clearTimeout(to);live=true;return loadMine()}).catch(function(){live=false;$('#mode').textContent='Онлайн-поликлиника, демо-режим';$('#meSub').textContent='Демо-режим: сервер не подключён, данные примера.'});
 show('home');
 })();
 </script>
