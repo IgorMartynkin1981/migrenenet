@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>МигрениНЕТ — онлайн-поликлиника</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF2F6;--card:#fff;--ink:#1B2838;--mute:#5E6C7D;--line:#D9E0E8;--acc:#2A8C82;--acc-s:#DDF1EE;--warn:#B7791F;--warn-s:#FBF0D9;--red:#C93B4F;--red-s:#FBE3E6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111A24;--card:#1A2634;--ink:#E7EDF4;--mute:#97A5B6;--line:#2B3A4C;--acc:#4DBBAE;--acc-s:#183B3A;--warn:#E8B04F;--warn-s:#3A2F17;--red:#F0707F;--red-s:#3F1E25}}
+:root[data-theme="dark"]{--bg:#111A24;--card:#1A2634;--ink:#E7EDF4;--mute:#97A5B6;--line:#2B3A4C;--acc:#4DBBAE;--acc-s:#183B3A;--warn:#E8B04F;--warn-s:#3A2F17;--red:#F0707F;--red-s:#3F1E25}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Manrope,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.app{max-width:640px;margin:0 auto;padding:16px 16px 96px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.01em}
+.logo b{color:var(--acc)}
+.sub{color:var(--mute);font-size:14px}
+h1{font-size:28px;line-height:1.15;letter-spacing:-.02em;margin:8px 0 8px;font-weight:800}
+h2{font-size:18px;margin:0 0 12px;font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+.hero{background:var(--ink);color:var(--bg);border:0;border-radius:24px;padding:24px}
+.hero p{color:inherit;opacity:.8;margin:0 0 18px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:14px;padding:13px 18px;cursor:pointer;background:var(--acc);color:#fff;min-height:48px}
+.btn.ghost{background:var(--acc-s);color:var(--acc)}
+.btn.sos{background:var(--red);color:#fff}
+.btn.light{background:var(--bg);color:var(--ink)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>.btn{flex:1 1 140px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:20}
+nav div{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+nav button{font:inherit;font-size:12px;font-weight:600;background:none;border:0;color:var(--mute);padding:8px 2px;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button[aria-current=true]{color:var(--acc);background:var(--acc-s)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+section{display:none}section.on{display:block}
+label.q{display:block;font-weight:700;margin:16px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label{padding:9px 14px;border:1px solid var(--line);border-radius:999px;cursor:pointer;font-size:15px;background:var(--card)}
+.chips input:checked+label{background:var(--acc);border-color:var(--acc);color:#fff}
+.chips input:focus-visible+label{outline:3px solid var(--acc);outline-offset:2px}
+input[type=range]{width:100%;accent-color:var(--acc)}
+input[type=number],input[type=text],select{font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);width:100%}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.vas{font-size:40px;font-weight:800;color:var(--acc);line-height:1}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--bg);border-radius:14px;padding:14px}
+.stat b{font-size:28px;font-weight:800;display:block;line-height:1.1}
+.stat span{font-size:13px;color:var(--mute)}
+.flag{border-radius:14px;padding:12px 14px;margin-bottom:10px;font-size:15px}
+.flag.r{background:var(--red-s);color:var(--red)}
+.flag.w{background:var(--warn-s);color:var(--warn)}
+.flag.g{background:var(--acc-s);color:var(--acc)}
+.flag b{color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--mute);width:48%}
+details{border-bottom:1px solid var(--line);padding:12px 0}
+details:last-child{border:0}
+summary{font-weight:700;cursor:pointer}
+details p,details ul{margin:8px 0 0;color:var(--mute)}
+.scroll{overflow-x:auto}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:600;z-index:30}
+.seg{display:inline-flex;background:var(--bg);border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{font:inherit;font-weight:600;border:0;background:none;color:var(--mute);padding:7px 14px;border-radius:10px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--ink)}
+.legend{font-size:13px;color:var(--mute);display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+@media (prefers-reduced-motion:no-preference){section.on{animation:in .25s ease}@keyframes in{from{opacity:0}to{opacity:1}}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div><div class="logo">Мигрени<b>НЕТ</b></div><div class="sub">Онлайн-поликлиника</div></div>
+  <button class="btn light" id="theme" aria-label="Сменить тему" style="min-height:40px;padding:8px 14px">Тема</button>
+</header>
+
+<!-- ГЛАВНАЯ -->
+<section id="home" class="on">
+  <div class="card hero">
+    <h1 style="color:inherit">Мигрень — это лечится и контролируется</h1>
+    <p>Заполняйте дневник каждое утро. Врач увидит динамику и вовремя скорректирует лечение.</p>
+    <div class="row">
+      <button class="btn" data-go="diary">Заполнить дневник</button>
+      <button class="btn light" data-go="info">Связаться с врачом</button>
+    </div>
+  </div>
+  <div class="card" style="background:var(--red-s);border-color:transparent">
+    <h2 style="color:var(--red)">Нужна срочная помощь?</h2>
+    <p style="margin:0 0 12px">Внезапная «громовая» боль, спутанность сознания, слабость в руке или ноге, нарушение речи.</p>
+    <button class="btn sos" id="sosBtn">Экстренная помощь</button>
+  </div>
+  <div class="card">
+    <h2>Что такое мигрень</h2>
+    <p style="margin:0 0 8px">Первичное неврологическое заболевание: приступы пульсирующей, чаще односторонней боли от 4 до 72 часов с тошнотой, чувствительностью к свету и звукам.</p>
+    <p class="sub" style="margin:0">Это не «просто головная боль» и не признак опухоли мозга. В России мигренью страдают около 20,8% населения, женщины — втрое чаще мужчин.</p>
+  </div>
+  <div class="card">
+    <h2>Формы мигрени</h2>
+    <details open><summary>Без ауры — до 80% случаев</summary><p>Приступ боли без предшествующих неврологических симптомов.</p></details>
+    <details><summary>С аурой — до 20% случаев</summary><p>За 10–30 минут до боли: мерцание, зигзаги, онемение, покалывание или нарушение речи.</p></details>
+    <details><summary>Хроническая</summary><p>Боль ≥15 дней в месяц дольше 3 месяцев, из них не менее 8 дней с признаками мигрени.</p></details>
+  </div>
+</section>
+
+<!-- ДНЕВНИК -->
+<section id="diary">
+  <h1>Утренний дневник</h1>
+  <p class="sub" style="margin:0 0 14px">Оцените прошедшие сутки: вчерашний день и ночь. Заполняйте до 10:00.</p>
+  <form class="card" id="form" onsubmit="return false">
+    <label class="q" style="margin-top:0">1. Была ли головная боль?</label>
+    <div class="chips" id="qPain">
+      <input type="radio" name="pain" id="p0" value="0"><label for="p0">Боли не было</label>
+      <input type="radio" name="pain" id="p1" value="1" checked><label for="p1">Боль была</label>
+    </div>
+
+    <div id="painBlock">
+      <label class="q">2. Характеристики боли</label>
+      <div class="row" style="align-items:center;justify-content:space-between"><span>Интенсивность по ВАШ (0–10)</span><span class="vas" id="vasOut">5</span></div>
+      <input type="range" min="0" max="10" value="5" id="vas" aria-label="Интенсивность боли">
+      <div class="grid2" style="margin-top:12px">
+        <div><div class="sub">Длительность, часов</div><input type="number" id="hours" min="0" max="24" step="0.5" value="6"></div>
+        <div><div class="sub">Локализация</div><select id="loc"><option>Односторонняя, справа</option><option>Односторонняя, слева</option><option>Двусторонняя</option></select></div>
+      </div>
+      <div class="sub" style="margin:12px 0 6px">Характер</div>
+      <div class="chips" data-n="char">
+        <input type="checkbox" id="c1"><label for="c1">Пульсирующая</label>
+        <input type="checkbox" id="c2"><label for="c2">Давящая</label>
+        <input type="checkbox" id="c3"><label for="c3">Распирающая</label>
+      </div>
+      <div class="sub" style="margin:12px 0 6px">Усиливается при обычной нагрузке?</div>
+      <div class="chips"><input type="radio" name="eff" id="e1" value="1"><label for="e1">Да</label><input type="radio" name="eff" id="e0" value="0"><label for="e0">Нет</label></div>
+
+      <label class="q">3. Сопутствующие симптомы</label>
+      <div class="chips" id="sym">
+        <input type="checkbox" id="s1"><label for="s1">Тошнота</label>
+        <input type="checkbox" id="s2"><label for="s2">Рвота</label>
+        <input type="checkbox" id="s3"><label for="s3">Светобоязнь</label>
+        <input type="checkbox" id="s4"><label for="s4">Непереносимость звуков</label>
+        <input type="checkbox" id="s5"><label for="s5">Аура</label>
+      </div>
+
+      <label class="q">4. Возможные триггеры</label>
+      <div class="chips" id="trg">
+        <input type="checkbox" id="t1"><label for="t1">Стресс</label>
+        <input type="checkbox" id="t2"><label for="t2">Нарушение сна</label>
+        <input type="checkbox" id="t3"><label for="t3">Менструация</label>
+        <input type="checkbox" id="t4"><label for="t4">Голод</label>
+        <input type="checkbox" id="t5"><label for="t5">Сыр, шоколад, алкоголь</label>
+        <input type="checkbox" id="t6"><label for="t6">Свет, шум, духота</label>
+      </div>
+    </div>
+
+    <label class="q">5. Принимали обезболивающее или противомигренозный препарат?</label>
+    <div class="chips"><input type="radio" name="med" id="m0" value="0" checked><label for="m0">Нет</label><input type="radio" name="med" id="m1" value="1"><label for="m1">Да</label></div>
+    <div id="medBlock" hidden>
+      <div class="grid2" style="margin-top:12px">
+        <div><div class="sub">Препарат</div><input type="text" id="drug" placeholder="Например, суматриптан"></div>
+        <div><div class="sub">Доза, мг</div><input type="number" id="dose" min="0" placeholder="50"></div>
+        <div><div class="sub">Время приёма</div><input type="text" id="mtime" placeholder="08:30"></div>
+        <div><div class="sub">Помогло?</div><select id="relief"><option value="full">Полностью</option><option value="part">Частично</option><option value="none">Не помогло</option></select></div>
+      </div>
+    </div>
+
+    <label class="q">6. Влияние на повседневную активность</label>
+    <div class="chips">
+      <input type="radio" name="fn" id="f0" value="0" checked><label for="f0">Функционировал(а) нормально</label>
+      <input type="radio" name="fn" id="f1" value="1"><label for="f1">Были трудности</label>
+      <input type="radio" name="fn" id="f2" value="2"><label for="f2">Снизил(а) активность или лёг(ла)</label>
+      <input type="radio" name="fn" id="f3" value="3"><label for="f3">Пропустил(а) работу или учёбу</label>
+    </div>
+
+    <label class="q">7. Сон за прошедшую ночь</label>
+    <div class="grid2">
+      <div><div class="sub">Часы сна</div><input type="number" id="sleep" min="0" max="16" step="0.5" value="7"></div>
+      <div><div class="sub">Качество</div><select id="sq"><option>Хорошее</option><option>Удовлетворительное</option><option>Плохое</option></select></div>
+    </div>
+    <button class="btn" id="save" style="width:100%;margin-top:22px">Сохранить дневник</button>
+  </form>
+</section>
+
+<!-- МОИ ИТОГИ -->
+<section id="me">
+  <h1>Мои итоги</h1>
+  <p class="sub" style="margin:0 0 14px">Динамика за последние 30 дней. Данные в этом примере — демонстрационные.</p>
+  <div class="card"><div class="stats" id="myStats"></div></div>
+  <div class="card">
+    <h2>Интенсивность боли по дням</h2>
+    <div class="scroll"><svg id="chart" viewBox="0 0 620 190" width="100%" role="img" aria-label="Столбчатая диаграмма интенсивности боли за 30 дней"></svg></div>
+    <div class="legend"><span><i style="background:var(--acc)"></i>без препарата</span><span><i style="background:var(--warn)"></i>принимал(а) препарат</span></div>
+  </div>
+  <div class="card"><h2>Последние записи</h2><div class="scroll"><table id="log"></table></div></div>
+</section>
+
+<!-- ВРАЧ -->
+<section id="doc">
+  <h1>Панель врача</h1>
+  <p class="sub" style="margin:0 0 14px">Дневники обрабатываются автоматически. Врач просматривает отклонения ежедневно до 12:00.</p>
+  <div class="seg" id="seg" role="group" aria-label="Пациент"></div>
+  <div id="flags"></div>
+  <div class="card"><h2>Показатели лечения за 30 дней</h2><div class="stats" id="docStats"></div></div>
+  <div class="card"><h2>Критерии оценки</h2>
+    <table>
+      <tr><th>Частота приступов</th><td>Дней с болью в месяц. Цель профилактики — снижение на ≥50%.</td></tr>
+      <tr><th>Интенсивность</th><td>Средний балл по ВАШ.</td></tr>
+      <tr><th>Приём препаратов</th><td>Дней приёма в месяц. Красный флаг: больше 10.</td></tr>
+      <tr><th>Влияние на активность</th><td>Дни с ограничением или пропуском.</td></tr>
+      <tr><th>Купирование</th><td>Доля приступов, где препарат помог полностью.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ИНФО -->
+<section id="info">
+  <h1>Помощь и связь</h1>
+  <div class="card" style="background:var(--red-s);border-color:transparent">
+    <h2 style="color:var(--red)">Вызовите скорую помощь (103 / 112), если</h2>
+    <ul style="margin:0;padding-left:20px">
+      <li>боль возникла внезапно и достигла максимума за секунды или минуты;</li>
+      <li>есть нарушение сознания, спутанность, судороги;</li>
+      <li>слабость в руке или ноге, перекос лица, нарушение речи, потеря зрения, не проходящие в течение приступа;</li>
+      <li>боль с высокой температурой и ригидностью шеи (нельзя прижать подбородок к груди);</li>
+      <li>боль появилась после травмы головы.</li>
+    </ul>
+    <p class="sub" style="margin:10px 0 0">Это может быть вторичная головная боль: инсульт, инфекция и другие состояния.</p>
+  </div>
+  <div class="card"><h2>Режим работы</h2>
+    <table>
+      <tr><th>Приём невролога (онлайн)</th><td>Пн–Пт, 09:00–18:00</td></tr>
+      <tr><th>Дежурный врач (чат)</th><td>Ежедневно, 08:00–22:00</td></tr>
+      <tr><th>Ответ в чате</th><td>В течение 2 часов в рабочее время</td></tr>
+      <tr><th>Обработка дневников</th><td>Автоматически, врач смотрит отклонения до 12:00</td></tr>
+    </table>
+  </div>
+  <div class="card"><h2>Обратная связь</h2>
+    <div class="row">
+      <button class="btn ghost" id="msgBtn">Сообщение врачу</button>
+      <button class="btn ghost" id="chatBtn">Чат с дежурным</button>
+    </div>
+    <p class="sub" style="margin:12px 0 0">Сообщение врачу — для неэкстренных вопросов и корректировки лечения. Чат — для срочных вопросов в часы работы.</p>
+    <p style="margin:10px 0 0">Горячая линия для экстренных случаев: <a href="tel:89142506881" style="color:var(--acc);font-weight:700">8 914 250-68-81</a></p>
+  </div>
+  <div class="card"><h2>Лечение: общие принципы</h2>
+    <details><summary>Купирование приступа</summary><p>Лёгкая боль — НПВС (ибупрофен, парацетамол). Средняя и тяжёлая — триптаны (суматриптан и др.) или антагонисты CGRP. Принимайте препарат в начале приступа.</p></details>
+    <details><summary>Профилактика</summary><p>Обсуждается при ≥4 приступах в месяц или при редких, но тяжёлых и длительных. Применяют бета-блокаторы, антиконвульсанты, антагонисты CGRP, ботулинотерапию.</p></details>
+    <details><summary>Ограничение обезболивающих</summary><p>Не более 10 дней в месяц, иначе возможна лекарственно-индуцированная головная боль.</p></details>
+    <details><summary>Триггеры</summary><p>Стресс, нарушение сна, менструация, голод, алкоголь, мерцающий свет, шум, духота, перенапряжение. Дневник поможет найти ваши.</p></details>
+    <details><summary>Когда идти к врачу вне приступа</summary><ul><li>приступы участились (≥4 в месяц);</li><li>обезболивающие перестали помогать;</li><li>вы принимаете их больше 10 дней в месяц;</li><li>изменился характер боли.</li></ul></details>
+  </div>
+  <p class="sub">Сервис не заменяет очный осмотр и не ставит диагноз.</p>
+</section>
+</div>
+
+<nav aria-label="Разделы"><div id="tabs"></div></nav>
+
+<script>
+(function(){
+var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+var ICON={home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',diary:'<path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2zM9 8h6M9 12h6"/>',me:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',doc:'<path d="M12 3v5M9.5 5.5h5M5 9h14v11H5zM9 14h6"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>'};
+var NAMES={home:'Главная',diary:'Дневник',me:'Итоги',doc:'Врач',info:'Помощь'};
+var tabs=$('#tabs');
+Object.keys(NAMES).forEach(function(k){var b=document.createElement('button');b.dataset.go=k;b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[k]+'</svg>'+NAMES[k];tabs.appendChild(b)});
+function show(id){$$('section').forEach(function(s){s.classList.toggle('on',s.id===id)});$$('nav button').forEach(function(b){b.setAttribute('aria-current',b.dataset.go===id)});window.scrollTo(0,0);if(id==='me')renderMe();if(id==='doc')renderDoc()}
+document.addEventListener('click',function(e){var g=e.target.closest('[data-go]');if(g)show(g.dataset.go)});
+function toast(t){var d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove()},2400)}
+
+// тема
+var th=$('#theme');th.onclick=function(){var r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=dark?'light':'dark'};
+
+// демо-данные: 60 дней (30 прошлый месяц + 30 текущий), три пациента
+function rnd(seed){var s=seed;return function(){s=(s*9301+49297)%233280;return s/233280}}
+var PAT={anna:{name:'Анна К., 34, G43.1',pPain:.5,pMed:.85,v:[5.4,6.8]},oleg:{name:'Олег М., 41, G43.0',pPain:.25,pMed:.4,v:[5,4.2]},mari:{name:'Мария С., 29, G43.3',pPain:.55,pMed:.5,v:[5.8,5.9]}};
+function gen(key,seed){var p=PAT[key],r=rnd(seed),out=[],today=new Date();
+ for(var i=59;i>=0;i--){var d=new Date(today);d.setDate(d.getDate()-i);var late=i<30,vm=late?p.v[1]:p.v[0];var pain=r()<p.pPain,e={date:d,pain:pain,vas:0,med:false,relief:null,fn:0,sleep:+(5+r()*3.5).toFixed(1)};
+  if(pain){e.vas=Math.max(2,Math.min(10,Math.round(vm+(r()-.5)*4)));e.med=r()<p.pMed;e.fn=e.vas>=7?(r()<.5?2:3):(r()<.5?1:0);if(e.med){var x=r();e.relief=x<(key==='oleg'?.8:.5)?'full':x<.85?'part':'none'}}
+  out.push(e)}
+ return out}
+var DATA={anna:gen('anna',7),oleg:gen('oleg',11),mari:gen('mari',3)};
+try{var sv=JSON.parse(localStorage.getItem('mn_today')||'null');if(sv){sv.date=new Date(sv.date);DATA.anna[59]=sv}}catch(_){}
+
+function stats(arr){var pain=arr.filter(function(e){return e.pain}),med=arr.filter(function(e){return e.med});
+ var avg=pain.length?pain.reduce(function(a,e){return a+e.vas},0)/pain.length:0;
+ var lim=arr.filter(function(e){return e.fn>=2}).length;
+ var full=med.filter(function(e){return e.relief==='full'}).length;
+ return{days:pain.length,avg:avg,med:med.length,lim:lim,rel:med.length?Math.round(100*full/med.length):null}}
+function box(el,items){el.innerHTML=items.map(function(i){return '<div class="stat"><b>'+i[0]+'</b><span>'+i[1]+'</span></div>'}).join('')}
+function fmt(d){return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})}
+
+function renderMe(){var arr=DATA.anna.slice(30),s=stats(arr),prev=stats(DATA.anna.slice(0,30));
+ box($('#myStats'),[[s.days,'дней с болью (был '+prev.days+')'],[s.avg.toFixed(1),'средний балл ВАШ'],[s.med,'дней приёма препаратов'],[s.lim,'дней с ограничением активности']]);
+ var W=620,H=190,bw=W/30,g='';
+ arr.forEach(function(e,i){var h=e.pain?e.vas*15:3,y=H-26-h;g+='<rect x="'+(i*bw+3)+'" y="'+y+'" width="'+(bw-6)+'" height="'+h+'" rx="4" fill="'+(e.med?'var(--warn)':'var(--acc)')+'" opacity="'+(e.pain?1:.25)+'"><title>'+fmt(e.date)+': '+(e.pain?e.vas+' из 10':'без боли')+'</title></rect>'});
+ g+='<line x1="0" x2="'+W+'" y1="'+(H-26)+'" y2="'+(H-26)+'" stroke="var(--line)"/><text x="0" y="'+(H-8)+'" font-size="11" fill="var(--mute)">'+fmt(arr[0].date)+'</text><text x="'+W+'" y="'+(H-8)+'" font-size="11" text-anchor="end" fill="var(--mute)">'+fmt(arr[29].date)+'</text>';
+ $('#chart').innerHTML=g;
+ var FN=['Нормально','Были трудности','Снизил(а) активность','Пропуск'];
+ $('#log').innerHTML='<tr><th style="width:auto">Дата</th><th style="width:auto">Боль</th><th style="width:auto">Препарат</th><th style="width:auto">Активность</th></tr>'+arr.slice(-7).reverse().map(function(e){return '<tr><td>'+fmt(e.date)+'</td><td>'+(e.pain?e.vas+'/10':'нет')+'</td><td>'+(e.med?({full:'помог',part:'частично',none:'не помог'}[e.relief]||'принят'):'—')+'</td><td>'+FN[e.fn]+'</td></tr>'}).join('')}
+
+var cur='anna';
+var seg=$('#seg');Object.keys(PAT).forEach(function(k){var b=document.createElement('button');b.textContent=PAT[k].name.split(',')[0];b.dataset.k=k;b.onclick=function(){cur=k;renderDoc()};seg.appendChild(b)});
+function renderDoc(){$$('#seg button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.k===cur)});
+ var a=DATA[cur],now=a.slice(30),prev=a.slice(0,30),s=stats(now),p=stats(prev),f=[],n=PAT[cur].name.split(',')[0];
+ if(s.med>10)f.push(['r','<b>'+n+':</b> за последние 30 дней '+s.med+' дней приёма обезболивающих. Рекомендуется пересмотр терапии и беседа о лекарственно-индуцированной головной боли.']);
+ if(s.avg-p.avg>=1.2)f.push(['r','<b>'+n+':</b> средняя интенсивность приступов выросла с '+p.avg.toFixed(1)+' до '+s.avg.toFixed(1)+' балла за месяц. Требуется оценка профилактической терапии.']);
+ if(s.lim>=8)f.push(['w','<b>'+n+':</b> '+s.lim+' дней с ограничением активности или пропуском работы.']);
+ if(p.days&&s.days<=p.days*.5)f.push(['g','<b>'+n+':</b> дней с болью стало вдвое меньше ('+p.days+' → '+s.days+'). Цель профилактики достигнута.']);
+ if(s.days>=15)f.push(['w','<b>'+n+':</b> боль '+s.days+' дней в месяц — возможна хроническая форма.']);
+ if(!f.length)f.push(['g','<b>'+n+':</b> отклонений нет.']);
+ $('#flags').innerHTML=f.map(function(x){return '<div class="flag '+x[0]+'" role="'+(x[0]==='r'?'alert':'note')+'">'+x[1]+'</div>'}).join('');
+ var d=s.days-p.days;
+ box($('#docStats'),[[s.days,'дней с болью ('+(d>0?'+':'')+d+' к прошлому месяцу)'],[s.avg.toFixed(1),'средний ВАШ (был '+p.avg.toFixed(1)+')'],[s.med,'дней приёма препаратов'],[s.lim,'дней с ограничением'],[s.rel===null?'—':s.rel+'%','приступов купировано полностью']])}
+
+// форма
+$$('input[name=pain]').forEach(function(r){r.onchange=function(){$('#painBlock').hidden=$('#p0').checked}});
+$$('input[name=med]').forEach(function(r){r.onchange=function(){$('#medBlock').hidden=!$('#m1').checked}});
+$('#vas').oninput=function(){$('#vasOut').textContent=this.value};
+$('#save').onclick=function(){var pain=$('#p1').checked,med=$('#m1').checked;
+ var e={date:new Date(),pain:pain,vas:pain?+$('#vas').value:0,med:med,relief:med?$('#relief').value:null,fn:+(document.querySelector('input[name=fn]:checked')||{value:0}).value,sleep:+$('#sleep').value};
+ DATA.anna[59]=e;try{localStorage.setItem('mn_today',JSON.stringify(e))}catch(_){}
+ toast('Дневник сохранён');show('me')};
+$('#sosBtn').onclick=function(){show('info')};
+$('#msgBtn').onclick=function(){toast('Сообщение врачу: форма откроется в личном кабинете')};
+$('#chatBtn').onclick=function(){toast('Чат с дежурным врачом доступен 08:00–22:00')};
+show('home');
+})();
+</script>
+</body>
+</html>
